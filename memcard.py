@@ -31,5 +31,21 @@ def connect_db():
     rv.row_factory = sqlite3.Row
     return rv
 
+
+def get_db():
+    """Если ещё нет соединения с базой данных, открыть новое - для
+    текущего контекста приложения
+    """
+    if not hasattr(g, 'sqlite_db'):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database again at the end of the request."""
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
+
+
 if __name__ == '__main__':
     app.run()
